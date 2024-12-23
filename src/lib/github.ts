@@ -1,3 +1,4 @@
+
 import { db } from '@/server/db'
 import { Octokit } from 'octokit'
 import { aiSummarieCommit } from './gemini'
@@ -7,7 +8,6 @@ export const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN,
 })
 
-const githubUrl = 'https://github.com/sahilrush/metaverse-turbo'
 
 type Response = {
     commitHash: string
@@ -122,6 +122,3 @@ async function filterUnprocessedCommits(projectId: string, commitHashes: Respons
 
     return unprocessedCommits
 }
-
-// Example call to poll commits for a project
-await pollCommits('cm4uzi3mr000069rsodqnsdpd').then(console.log)
