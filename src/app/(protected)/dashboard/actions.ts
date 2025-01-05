@@ -1,43 +1,48 @@
-"use server"
+"use server";
 
-import { streamText } from 'ai'
-import { createStreamableValue } from "ai/rsc"
-import { createGoogleGenerativeAI } from '@ai-sdk/google'
-import { generateEmbedding } from '@/lib/gemini'
-import { db } from '@/server/db'
+import { streamText } from "ai";
+import { createStreamableValue } from "ai/rsc";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { generateEmbedding } from "@/lib/gemini";
+import { db } from "@/server/db";
 
 const google = createGoogleGenerativeAI({
-    apiKey: process.env.GEMINI_API_KEY,
-})
+  apiKey: process.env.GEMINI_API_KEY,
+});
 
 export async function askQuestion(question: string, projectId: string) {
-    const stream = createStreamableValue()
+  const stream = createStreamableValue();
 
-    const queryVector = await generateEmbedding(question)
-    const vectorQuery = `[${queryVector.join(',')}]`
+  const queryVector = await generateEmbedding(question);
+  const vectorQuery = `[${queryVector.join(",")}]`;
+  //to validate vector length
+  if (queryVector.length !== 768) {
+    console.error("Quert vector length is incorrect");
+  }
 
-
-    const result = await db.$queryRaw`
+  const result = (await db.$queryRaw`
     SELECT "fileName", "sourceCode", "summary",
-    1 - ("summaryEmbedding" <=> ${vectorQuery}) AS similarity
+    1 - ("summaryEmbedding" <=> ${vectorQuery}::vector) AS similarity
     FROM "SourceCodeEmbedding"
-    WHERE 1 - ("summaryEmbedding" <=> ${vectorQuery}::vector) > .5
+    WHERE 1 - ("summaryEmbedding" <=> ${vectorQuery}::vector) > 0.5
     AND "projectId" = ${projectId}
     ORDER BY similarity DESC
     LIMIT 10
-    ` as { fileName: string, sourceCode: string, summary: string }[]
+    `) as { fileName: string; sourceCode: string; summary: string }[];
 
-    let context = ''
+  console.log("Project Id", projectId);
+  console.log("Database Result", result);
 
-    for (const doc of result) {
-        context +=`source:${doc.fileName}\ncode content:${doc.sourceCode}\n summary of file: ${doc.summary}\n\n`
-    }
+  let context = "";
 
+  for (const doc of result) {
+    context += `source:${doc.fileName}\ncode content:${doc.sourceCode}\n summary of file: ${doc.summary}\n\n`;
+  }
 
-    (async () => {
-        const { textStream } = await streamText({
-            model: google(`gemini-1.5-flash`),
-            prompt: `
+  (async () => {
+    const { textStream } = await streamText({
+      model: google(`gemini-1.5-flash`),
+      prompt: `
             You are a ai code assistant who answers questions about the codebase. Your target audience is a technical intern who is looking to understand the codebase.
                     AI assistant is a brand new, powerful, human-like artificial intelligence.
 The traits of AI include expert knowledge, helpfulness, cleverness, and articulateness.
@@ -57,17 +62,16 @@ If the context does not provide answer to question, The AI assistant will say , 
 AI assistant will not apologize for previous response. but instead will indicated new information was gained.
 AI assistant will not invent anything that is not drawn directly  from the context.
 Answer in markdown syntax, with code snippets if needed. Be as detailed as possible when answering. make sure there is no ambiguity in the answer.
-            `
-        })
-        for await(const delta of textStream) {
-            stream.update(delta)
-        }
-        stream.done()
-    })() 
-
-    return {
-        output: stream.value,
-        filesReferences: result
+            `,
+    });
+    for await (const delta of textStream) {
+      stream.update(delta);
     }
+    stream.done();
+  })();
 
+  return {
+    output: stream.value,
+    filesReferences: result,
+  };
 }
