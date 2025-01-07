@@ -1,14 +1,14 @@
- // This is your Prisma schema file,
+// This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+    provider        = "prisma-client-js"
     previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+    provider   = "postgresql"
+    url        = env("DATABASE_URL")
     extensions = [vector]
 }
 
@@ -26,6 +26,7 @@ model User {
     credits Int @default(150)
 
     userToProjects UserToProject[]
+    QuestionAsked  Question[]
 }
 
 model Project {
@@ -43,6 +44,8 @@ model Project {
     commits Commit[]
 
     SourceCodeEmbedding SourceCodeEmbedding[]
+
+    savedQuestion Question[]
 }
 
 model UserToProject {
@@ -60,14 +63,31 @@ model UserToProject {
 }
 
 model SourceCodeEmbedding {
-    id       String   @id @default(cuid())
-   summaryEmbedding Unsupported("vector(768)")?
-   sourceCode   String
-   fileName     String
-   summary      String
+    id               String                      @id @default(cuid())
+    summaryEmbedding Unsupported("vector(768)")?
+    sourceCode       String
+    fileName         String
+    summary          String
 
-   projectId String
-   project   Project @relation(fields: [projectId], references: [id])
+    projectId String
+    project   Project @relation(fields: [projectId], references: [id])
+}
+
+model Question {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    question String
+    answer   String
+
+    filesReferences Json?
+
+    projectId String
+    project   Project @relation(fields: [projectId], references: [id])
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id])
 }
 
 model Commit {
@@ -76,7 +96,7 @@ model Commit {
     updatedAt DateTime @updatedAt
 
     projectId String
-    project  Project @relation(fields: [projectId], references: [id])
+    project   Project @relation(fields: [projectId], references: [id])
 
     commitMessage      String
     commitHash         String

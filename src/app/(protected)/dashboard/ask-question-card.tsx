@@ -10,6 +10,11 @@ import React from 'react'
 import { readStreamableValue } from 'ai/rsc'
 import MDEditor from "@uiw/react-md-editor"
 import { askQuestion } from './actions'
+import CodeReferences from './code-references'
+import { api } from '@/trpc/react'
+import { toast } from 'sonner'
+import useRefetch from '@/hooks/use-refetch'
+
 
 const AskQuestionCard = () => {
     const { project } = UseProject()
@@ -18,6 +23,7 @@ const AskQuestionCard = () => {
     const [loading,setLoading] = React.useState(false)
     const [filesReferences, setFilesReferences] = React.useState<{fileName:string, sourceCode:string, summary:string}[]>([])
     const [answer, setAnswer] = React.useState('')  
+    const saveAnswer = api.project.saveAnswer.useMutation()
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         setAnswer('')
@@ -40,16 +46,43 @@ const AskQuestionCard = () => {
 
 
     }
+    const refetch = useRefetch()
     return (
         <>
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className='sm:max-w-[80vw]'>
+                <DialogContent className='sm:max-w-[70vw]'>
                 <DialogHeader>
+                    <div className='flex items-center gap-2'>
                     <DialogTitle>
                         <Image src='/logo67.png' alt='logo' width={40} height={40} />
                     </DialogTitle>
+                    <Button variant={'outline'} disabled={saveAnswer.isPending} onClick={() => {
+                        saveAnswer.mutate({
+                            projectId:project!.id,
+                            question,
+                            answer,
+                            filesReferences
+
+                        }, {
+                            onSuccess:() => {
+                                toast.success('Answer Saved!')
+                                refetch()
+                            },
+                            onError:() => {
+                                toast.error('Failed to save answer!')
+                            }
+                        })
+                    }}>
+                        Save Answer
+                    </Button>
+                    </div>
+                   
                 </DialogHeader>
-                <MDEditor.Markdown source={answer} className='max-w-[70vw] !h-full max-h-[40vh] overflow-scroll'/>
+                <MDEditor.Markdown source={answer} className='max-w-[70vw] !h-full max-h-[30vh] overflow-scroll'/>
+                <div className="h-4"></div>
+            
+                <CodeReferences filesReferences={filesReferences}/>
+
                 <Button type='button' onClick={() => {setOpen(false);}}>
                     Close
                 </Button>

@@ -1,20 +1,19 @@
-import { api } from '@/trpc/react'
-import { useLocalStorage } from 'usehooks-ts'
+import { api } from "@/trpc/react";
+import { useLocalStorage } from "usehooks-ts";
 
 const UseProject = () => {
-    const { data: projects } = api.project.getProjects.useQuery()
-    const [projectId, setProjectId] = useLocalStorage('Reposync-ProjectId','')
-    
-    const project= projects?.find(project => project.id === projectId)
+  const { data: projects } = api.project.getProjects.useQuery();
 
+  const [projectId, setProjectId] = useLocalStorage("Reposync-ProjectId", "");
 
- 
-    return {
-        projects,
-        project,
-        projectId, 
-        setProjectId,
-    }
-}
+  const project = projects?.find((project) => project.id === projectId);
 
-export default UseProject
+  return {
+    projects,
+    project,
+    projectId,
+    setProjectId,
+  };
+};
+
+export default UseProject;

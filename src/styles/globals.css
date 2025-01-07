@@ -85,3 +85,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+code[class*="language-"] , pre[class*="language-"]{
+  background: "red" !important;
+  color: "red" !important
+}
