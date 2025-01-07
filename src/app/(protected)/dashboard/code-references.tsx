@@ -14,9 +14,9 @@ const CodeReferences = ({ filesReferences }: Props) => {
   const [tab, setTab] = useState(filesReferences[0]?.fileName);
 
   return (
-    <div className="max-w-[70rema]">
+    <div className="max-w-[70rem] "  >
       <Tabs value={tab} onValueChange={setTab}>
-        <div className="overflow-scroll flex gap-2 bg-gray-200 p-1 rounded-md">
+        <div className="overflow-scroll flex gap-2 bg-gray-200 p-1 rounded-md max-w-[60rem] ">
           {filesReferences.map((file) => (
             <button
             onClick={() => setTab(file.fileName)}
@@ -36,9 +36,9 @@ const CodeReferences = ({ filesReferences }: Props) => {
           <TabsContent
             key={file.fileName}
             value={file.fileName}
-            className="max-h-[40vh] overflow-scroll max-w-7xl rounded-md "
+            className="max-h-[40vh] overflow-scroll max-w-7xl rounded-md"
           >
-            <Prism class="language-ts" language="ts" style={zTouch}>
+            <Prism class="language-ts" language="ts" style={zTouch} className="rounded-md max-w-[65vw]">
                 {file.sourceCode}
             </Prism>
           </TabsContent>

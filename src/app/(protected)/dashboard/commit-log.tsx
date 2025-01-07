@@ -21,16 +21,18 @@ const CommitLog = () => {
                         </div>
                         <>
                             <img src={commit.commitAuthorAvatar} alt="commit avatar" className='relative mt-4 size-8 flex-none rounded-full bg-gray-50' />
-                            <div className='flex-auto rounded-mg bg-white p-3 ring-1 ring-inset ring-gray-200'>
+                            <div className='flex-auto rounded-mg bg-white p-3 ring-1 ring-inset ring-gray-200 '>
                                 <div className='flex justify-between-x-4'>
                                     <Link href={`${project?.githubUrl}/commits/${commit.commitHash}`} className='py-5 text-xs leading-5 text-gray-500 '>
                                         <span className='font-medium text-gray-900'>
                                             {commit.commitAuthorName}
                                         </span>{" "}
-                                        <span className='inline-flex items-center'>
+                                        <span className='inline-flex items-center cursor-pointer hover:bg-gray-200 rounded-md px-2 py-1'>
                                             commited
                                             <ExternalLink className='ml-1 size-4'  />
                                         </span>
+                                        {commit.commitDate ? commit.commitDate.toString() : "No date available"}
+
                                     </Link>
                                 </div>
                                 <span className='font-semibold'>

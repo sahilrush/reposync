@@ -19,15 +19,15 @@ const QAPage = () => {
     <div className="h-4"></div>
     <div className="font-semibold text-xl">Saved Questions</div>
     <div className="h-2"></div>
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 ">
         {question?.map((questions,index) => {
           return <React.Fragment key={questions.id}>
             <SheetTrigger onClick={() => setQuestionIndex(index)}>
-              <div className="flex items-center gap-4 bg-white rounded-lg p-4 shadow-border">
+              <div className="flex items-center gap-4 bg-white rounded-lg p-4 shadow-border hover:scale-95 transition-transform">
                 <img  className="rounded-full"  height={30} width={30} src={questions.user.imageUrl?? ""} alt="" />
                 <div className="text-left flex flex-col">
                   <div className="flex items-center gap-2">
-                    <p className="text-gray-700 line-clamp-1 text-lg font-medium">
+                    <p className="text-gray-700 line-clamp-1 text-lg font-medium font">
                       {questions.question}
                     </p>
                     <span className="text-xs text-gray-400 whitespace-nowrap ">
@@ -45,7 +45,7 @@ const QAPage = () => {
         {questions && (
           <SheetContent className="sm:max-w-[80vw] overflow-scroll">
             <SheetHeader>
-              <SheetTitle>
+              <SheetTitle className="text-xl font-medium text-gray-700 ">
                 {questions.question}
                 
               </SheetTitle>
