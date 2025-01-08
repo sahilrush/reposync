@@ -6,6 +6,7 @@ import { type Metadata } from "next";
 
 import { TRPCReactProvider } from "@/trpc/react";
 import { Toaster } from "sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata: Metadata = {
   title: "Reposync",
@@ -20,8 +21,10 @@ export default function RootLayout({
     <ClerkProvider>
     <html lang="en" className={`${GeistSans.variable}`}>
       <body>
+       <TooltipProvider>
         <TRPCReactProvider>{children}</TRPCReactProvider>
         <Toaster richColors/> 
+       </TooltipProvider>
       </body>
     </html>
     </ClerkProvider>

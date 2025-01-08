@@ -1,28 +1,106 @@
 "use client";
 
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import UseProject from "@/hooks/use-project";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
-import { ExternalLink, GitCommit } from "lucide-react";
+import { ExternalLink, GitCommit, Users } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
 const CommitLog = () => {
   const { projectId, project } = UseProject();
-  const { data: commits } = api.project.getCommits.useQuery({ projectId });
+  const { data: commits, isLoading } = api.project.getCommits.useQuery({
+    projectId,
+  });
+  const { data: contributors } = api.project.getContributors.useQuery({
+    projectId,
+  });
 
   const totalCount = commits?.totalCount;
 
   return (
     <>
-      <div className="flex max-w-[15vw] items-center rounded-md border p-3 text-white shadow-md">
-        <GitCommit className="mr-3 size-5 text-black" />
-        <div>
-          <div className="text-lg font-semibold text-gray-950">
-            Total Commits
+      <div className="flex flex-row flex-wrap items-center justify-start gap-4">
+        <div className="flex w-max items-start rounded-md border p-3 text-white shadow-md">
+          <GitCommit className="mr-3 size-5 text-black" />
+          <div className="">
+            <div className="text-lg font-semibold text-gray-950">
+              Total Commits
+            </div>
+            <div className="mt-1 text-2xl font-bold text-gray-900">
+              {totalCount}
+            </div>
           </div>
-          <div className="mt-1 text-2xl font-bold text-gray-900">
-            {totalCount}
+        </div>
+
+        <div className="flex w-max items-start rounded-md border p-3 text-white shadow-md">
+          <Users className="mr-3 size-5 text-black" />
+          <div className="">
+            <div className="text-lg font-semibold text-gray-950">
+              Contributors
+            </div>
+            <div
+              className={cn(
+                "flex w-full max-w-sm items-center justify-start gap-2 overflow-x-auto",
+                {
+                  "pl-4": (contributors?.length ?? 0) > 4,
+                },
+              )}
+            >
+              {contributors?.map((contributor) => (
+                <Tooltip key={contributor.login}>
+                  <TooltipTrigger className="hover:cursor-pointer">
+                    <Link
+                      target="_blank"
+                      href={contributor.htmlUrl}
+                      className="flex"
+                    >
+                      <Image
+                        src={contributor.avatarUrl}
+                        alt={contributor.login}
+                        className="h-8 w-8 rounded-full !aspect-square"
+                        width={100}
+                        height={100}
+                      />
+                      <span className="text-transparent">11231</span>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p> {contributor.login} </p>
+                  </TooltipContent>
+                </Tooltip>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="hidden items-center rounded-md border p-3 text-white shadow-md">
+          <div className="flex items-center justify-start">
+            <Users className="mr-3 size-5 text-black" />
+            <h2 className="text-lg font-semibold text-gray-950">
+              Contributors
+            </h2>
+          </div>
+          <div className="flex w-full max-w-sm items-center justify-start gap-12 overflow-x-auto pl-5">
+            {contributors?.map((contributor) => (
+              <Link
+                target="_blank"
+                href={contributor.htmlUrl}
+                key={contributor.login}
+                className="flex items-center justify-center gap-2 transition-all duration-150 ease-in hover:scale-110 hover:cursor-pointer"
+              >
+                <img
+                  src={contributor.avatarUrl}
+                  alt={contributor.login}
+                  className="h-8 w-8 rounded-full"
+                />
+                <span className="text-sm text-gray-900 hover:underline">
+                  {contributor.login}
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </div>

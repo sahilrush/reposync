@@ -70,6 +70,15 @@ export default {
   			}
   		},
   		keyframes: {
+			"infinite-scroll":{
+				from: {
+					transform: 'translateY(0)'
+				},
+				
+				to: {
+					transform: 'translateY(-100%)'
+				},
+			},
   			'accordion-down': {
   				from: {
   					height: '0'
@@ -89,7 +98,8 @@ export default {
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+			'infinite-scroll': 'infinite-scroll 10s linear infinite'
   		}
   	}
   },

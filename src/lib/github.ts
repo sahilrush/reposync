@@ -2,8 +2,7 @@ import { db } from "@/server/db";
 import { Octokit } from "octokit";
 import { aiSummarieCommit } from "./gemini";
 import axios from "axios";
-import { list } from "postcss";
-import { Url } from "next/dist/shared/lib/router/router";
+
 
 export const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
@@ -23,8 +22,7 @@ export const getCommitHashes = async (
   githubUrl: string,
 ): Promise<Response[]> => {
   console.log("-----------------------------------");
-  // await new Promise((resolve) => setTimeout(resolve, 1000));
-  // GitHub
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   const [owner, repo] = githubUrl.split("/").slice(-2);
   if (!owner || !repo) {
     throw new Error("Invalid GitHub URL");
@@ -170,4 +168,39 @@ export const getCommitCount = async(githubUrl:string) => {
 
   }
 return totalCommits;
+}
+
+
+export const getContributors = async (githubUrl:string) => {
+  const [owner,repo ] = githubUrl.split('/').slice(-2);
+  if(!owner || !repo) {
+    throw new Error('Invalid GitHub URL');
+  } 
+
+  let contributors: any[] = []
+  let page=1
+
+
+  while(true) {
+    const {data} = await octokit.rest.repos.listContributors({
+      owner,
+      repo,
+      per_page:100,
+      page
+    })
+
+    contributors = [
+      ...contributors,
+      ...data.map((contributors) => ({
+        login:contributors.login,
+        avatarUrl:contributors.avatar_url,
+        htmlUrl:contributors.html_url
+      })),
+    ]
+    if(data.length < 100) {
+      break;
+    }
+    page++;
+  }
+  return contributors
 }

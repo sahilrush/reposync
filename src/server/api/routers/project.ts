@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { getCommitCount, pollCommits } from "@/lib/github"; // Utility functions for GitHub commit count and polling
+import { getCommitCount, pollCommits, getContributors } from "@/lib/github"; // Utility functions for GitHub commit count, polling, and contributors
 import { indexGithubRepo } from "@/lib/github-loader"; // Index the GitHub repo (optional, depending on your app's logic)
 
 export const projectRouter = createTRPCRouter({
@@ -77,6 +77,28 @@ export const projectRouter = createTRPCRouter({
       });
 
       return { commits, totalCount: commitCount };
+    }),
+
+  // Get contributors and their avatars for a specific project
+  getContributors: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const project = await ctx.db.project.findUnique({
+        where: { id: input.projectId },
+      });
+
+      if (!project?.githubUrl) {
+        throw new Error("GitHub URL is not configured for this project.");
+      }
+
+      // Fetch contributors and their avatars
+      const contributors = await getContributors(project.githubUrl);
+
+      return contributors;
     }),
 
   // Save the answer to a specific question for a project
