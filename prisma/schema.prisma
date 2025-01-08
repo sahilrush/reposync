@@ -103,7 +103,7 @@ model Commit {
     commitAuthorName   String
     commitDate         DateTime
     commitAuthorAvatar String
-
+    listCommitCount    String
     //ai summary
     summary String
 }

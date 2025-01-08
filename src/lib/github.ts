@@ -2,6 +2,8 @@ import { db } from "@/server/db";
 import { Octokit } from "octokit";
 import { aiSummarieCommit } from "./gemini";
 import axios from "axios";
+import { list } from "postcss";
+import { Url } from "next/dist/shared/lib/router/router";
 
 export const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
@@ -13,6 +15,8 @@ type Response = {
   commitAuthorAvatar: string;
   commitDate: Date;
   commitAuthorName: string;
+  commitListCount:string;
+  listCommitCount: string;
 };
 
 export const getCommitHashes = async (
@@ -45,6 +49,8 @@ export const getCommitHashes = async (
     commitAuthorName: commit.commit?.author?.name ?? "",
     commitAuthorAvatar: commit?.author?.avatar_url ?? "",
     commitDate: commit.commit?.author?.date ?? "",
+    commitListCount: commit.commit?.author?.date ?? "",
+    listCommitCount: commit.commit?.author?.date ?? "",
   }));
 };
 export const pollCommits = async (projectId: string) => {
@@ -58,6 +64,7 @@ export const pollCommits = async (projectId: string) => {
   const summaryResponses = await Promise.allSettled(
     unprocessedCommits.map((x) => {
       return summariseCommit(githubUrl, x.commitHash);
+
     }),
   );
 
@@ -78,6 +85,7 @@ export const pollCommits = async (projectId: string) => {
         commitAuthorAvatar: unprocessedCommits[index]!.commitAuthorAvatar,
         commitDate: unprocessedCommits[index]!.commitDate,
         summary,
+        listCommitCount: unprocessedCommits[index]!.listCommitCount,
       };
     }),
   });
@@ -131,4 +139,35 @@ async function filterUnprocessedCommits(
   );
 
   return unprocessedCommits;
+}
+
+
+
+export const getCommitCount = async(githubUrl:string) => {
+
+
+  const [owner,repo ] =githubUrl.split('/').slice(-2);
+  if(!owner || !repo) {
+    throw new Error('Invalid GitHub URL');
+  }
+
+  let totalCommits = 0;
+  let page = 1;
+
+  while(true) {
+    const {data} = await octokit.rest.repos.listCommits({
+      owner,
+      repo,
+      per_page:100,
+      page
+    });
+    totalCommits += data.length;
+
+   if(data.length < 100) {
+    break;
+   }
+   page++;
+
+  }
+return totalCommits;
 }
