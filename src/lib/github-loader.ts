@@ -24,6 +24,8 @@ export const loadGithubRepo = async (
   return docs;
 };
 
+
+await new Promise((resolve) => setTimeout(resolve, 1000));
 export const indexGithubRepo = async (
   projectId: string,
   githubUrl: string,

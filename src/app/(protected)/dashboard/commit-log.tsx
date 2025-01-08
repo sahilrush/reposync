@@ -4,7 +4,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import UseProject from "@/hooks/use-project";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
-import { ExternalLink, GitCommit, Users } from "lucide-react";
+import { ExternalLink, FilesIcon, GitCommit, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -17,11 +17,16 @@ const CommitLog = () => {
   const { data: contributors } = api.project.getContributors.useQuery({
     projectId,
   });
+  const { data: totalFiles, isLoading: isFilesLoading } = api.project.getTotalFilesCount.useQuery({ projectId });
 
   const totalCount = commits?.totalCount;
 
+  const totalFilesCount = totalFiles?.totalFiles;
+
+
   return (
     <>
+     <div></div>
       <div className="flex flex-row flex-wrap items-center justify-start gap-4">
         <div className="flex w-max items-start rounded-md border p-3 text-white shadow-md">
           <GitCommit className="mr-3 size-5 text-black" />
@@ -31,6 +36,21 @@ const CommitLog = () => {
             </div>
             <div className="mt-1 text-2xl font-bold text-gray-900">
               {totalCount}
+            </div>
+          </div>
+        </div>
+
+
+
+
+        <div className="flex w-max items-start rounded-md border p-3 text-white shadow-md">
+          <FilesIcon className="mr-3 size-5 text-black" />
+          <div className="">
+            <div className="text-lg font-semibold text-gray-950">
+              Total Files
+            </div>
+            <div className="mt-1 text-2xl font-bold text-gray-900">
+              {isFilesLoading ? "Loading...": totalFilesCount}
             </div>
           </div>
         </div>
@@ -76,34 +96,14 @@ const CommitLog = () => {
           </div>
         </div>
 
-        <div className="hidden items-center rounded-md border p-3 text-white shadow-md">
-          <div className="flex items-center justify-start">
-            <Users className="mr-3 size-5 text-black" />
-            <h2 className="text-lg font-semibold text-gray-950">
-              Contributors
-            </h2>
-          </div>
-          <div className="flex w-full max-w-sm items-center justify-start gap-12 overflow-x-auto pl-5">
-            {contributors?.map((contributor) => (
-              <Link
-                target="_blank"
-                href={contributor.htmlUrl}
-                key={contributor.login}
-                className="flex items-center justify-center gap-2 transition-all duration-150 ease-in hover:scale-110 hover:cursor-pointer"
-              >
-                <img
-                  src={contributor.avatarUrl}
-                  alt={contributor.login}
-                  className="h-8 w-8 rounded-full"
-                />
-                <span className="text-sm text-gray-900 hover:underline">
-                  {contributor.login}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
+
+
+      
+
+  
+
+
+     </div>
 
       <ul className="mt-8 space-y-8">
         {commits?.commits.map((commit: any, commitIdx: any) => {

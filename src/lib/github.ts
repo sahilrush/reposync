@@ -204,3 +204,35 @@ export const getContributors = async (githubUrl:string) => {
   }
   return contributors
 }
+
+export const getTotalFilesCount = async (githubUrl:string) => {
+  const [owner,repo] = githubUrl.split('/').slice(-2);
+  if(!owner || !repo) {
+    throw new Error('Invalid GitHub URL');
+  }
+  let totalFiles = 0;
+
+  const getRepoContent = async(path:string = '') => {
+    const {data} = await octokit.rest.repos.getContent({
+      owner,
+      repo,
+      path,
+    })
+  
+
+
+  if(Array.isArray(data)) {
+    for(const item of data) {
+      if(item.type === 'file') {
+        totalFiles +=1;
+      }else if (item.type === 'dir') {
+        await getRepoContent(item.path)
+      }
+    }
+
+  }
+}
+
+await getRepoContent();
+return totalFiles;
+} 

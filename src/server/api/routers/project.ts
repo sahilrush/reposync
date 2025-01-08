@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { getCommitCount, pollCommits, getContributors } from "@/lib/github"; // Utility functions for GitHub commit count, polling, and contributors
+import { getCommitCount, pollCommits, getContributors, getTotalFilesCount } from "@/lib/github"; // Utility functions for GitHub commit count, polling, and contributors
 import { indexGithubRepo } from "@/lib/github-loader"; // Index the GitHub repo (optional, depending on your app's logic)
 
 export const projectRouter = createTRPCRouter({
@@ -139,4 +139,22 @@ export const projectRouter = createTRPCRouter({
         },
       });
     }),
+
+    getTotalFilesCount:protectedProcedure
+    .input(
+      z.object({
+        projectId: z.string(),
+      }),
+    ).query(async({ctx,input}) => {
+      const project = await ctx.db.project.findUnique({
+        where:{id:input.projectId}
+      });
+      if(!project?.githubUrl){
+        throw new Error("GitHub URL is not configured for this project.");
+      }
+      const totalFiles = await getTotalFilesCount(project.githubUrl);
+      return {totalFiles}
+
+    })
 });
+
