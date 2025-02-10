@@ -14,18 +14,18 @@ const CodeReferences = ({ filesReferences }: Props) => {
   const [tab, setTab] = useState(filesReferences[0]?.fileName);
 
   return (
-    <div className="max-w-[70rem] "  >
+    <div className="max-w-[70rem]">
       <Tabs value={tab} onValueChange={setTab}>
-        <div className="overflow-scroll flex gap-2 bg-gray-200 p-1 rounded-md max-w-[60rem] ">
+        <div className="flex max-w-[60rem] gap-2 overflow-scroll rounded-md bg-gray-200 p-1">
           {filesReferences.map((file) => (
             <button
-            onClick={() => setTab(file.fileName)}
+              onClick={() => setTab(file.fileName)}
               key={file.fileName}
               className={cn(
-                `px-3 py-1.5 text-sm font-medium rounded-md transition-colors whitespace-nowrap text-muted-foreground hover:bg-muted`,
+                `whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted`,
                 {
                   "bg-primary text-primary-foreground": tab === file.fileName,
-                }
+                },
               )}
             >
               {file.fileName}
@@ -36,10 +36,15 @@ const CodeReferences = ({ filesReferences }: Props) => {
           <TabsContent
             key={file.fileName}
             value={file.fileName}
-            className="max-h-[40vh] overflow-scroll max-w-7xl rounded-md"
+            className="max-h-[40vh] max-w-7xl overflow-scroll rounded-md"
           >
-            <Prism class="language-ts" language="ts" style={zTouch} className="rounded-md max-w-[65vw]">
-                {file.sourceCode}
+            <Prism
+              class="language-ts"
+              language="ts"
+              style={zTouch}
+              className="max-w-[65vw] rounded-md"
+            >
+              {file.sourceCode}
             </Prism>
           </TabsContent>
         ))}

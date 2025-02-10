@@ -11,7 +11,6 @@ const page = () => {
   const { project } = UseProject()
   return (
     <div >
-      {project?.id}
       <div className='flex items-center justify-between flex-wrap gap-y-4 '>
         {/*GIthub link  */}
         <div className='w-fit  rounded-md bg-primary px-4 py-3'>
@@ -34,16 +33,15 @@ const page = () => {
 
         <div className='flex items-center gap-4'>
           {/*Team members */}
-          TeamMember
+          {/* TeamMember
           ArchiveButton
-          InviteButton
+          InviteButton */}
 
         </div>
       </div>
       <div className='mt-4'>
         <div className='grid grid-cols-1 gap-4 sm:grid-cols-5'>
         <AskQuestionCard />
-            Meetingcard
         </div>
       </div>
    <div className='mt-8'></div>
