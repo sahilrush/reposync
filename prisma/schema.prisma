@@ -84,3 +84,10 @@ model Commit {
   summary            String
   project            Project  @relation(fields: [projectId], references: [id])
 }
+
+model Post {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+}
