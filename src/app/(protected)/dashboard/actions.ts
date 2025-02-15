@@ -39,7 +39,7 @@ export async function askQuestion(question: string, projectId: string) {
     context += `source:${doc.fileName}\ncode content:${doc.sourceCode}\n summary of file: ${doc.summary}\n\n`;
   }
 
-  (async () => {
+  void (async () => {
     const { textStream } = await streamText({
       model: google(`gemini-1.5-flash`),
       prompt: `

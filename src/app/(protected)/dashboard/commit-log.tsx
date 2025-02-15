@@ -1,6 +1,10 @@
 "use client";
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import UseProject from "@/hooks/use-project";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
@@ -8,6 +12,24 @@ import { ExternalLink, FilesIcon, GitCommit, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+
+// Add interface for contributor
+interface Contributor {
+  login: string;
+  htmlUrl: string;
+  avatarUrl: string;
+}
+
+// Add interface for commit
+interface Commit {
+  id: string;
+  commitHash: string;
+  commitAuthorName: string;
+  commitAuthorAvatar: string;
+  commitDate: Date;
+  commitMessage: string;
+  summary: string;
+}
 
 const CommitLog = () => {
   const { projectId, project } = UseProject();
@@ -17,16 +39,16 @@ const CommitLog = () => {
   const { data: contributors } = api.project.getContributors.useQuery({
     projectId,
   });
-  const { data: totalFiles, isLoading: isFilesLoading } = api.project.getTotalFilesCount.useQuery({ projectId });
+  const { data: totalFiles, isLoading: isFilesLoading } =
+    api.project.getTotalFilesCount.useQuery({ projectId });
 
   const totalCount = commits?.totalCount;
 
   const totalFilesCount = totalFiles?.totalFiles;
 
-
   return (
     <>
-     <div></div>
+      <div></div>
       <div className="flex flex-row flex-wrap items-center justify-start gap-4">
         <div className="flex w-max items-start rounded-md border p-3 text-white shadow-md">
           <GitCommit className="mr-3 size-5 text-black" />
@@ -40,9 +62,6 @@ const CommitLog = () => {
           </div>
         </div>
 
-
-
-
         <div className="flex w-max items-start rounded-md border p-3 text-white shadow-md">
           <FilesIcon className="mr-3 size-5 text-black" />
           <div className="">
@@ -50,7 +69,7 @@ const CommitLog = () => {
               Total Files
             </div>
             <div className="mt-1 text-2xl font-bold text-gray-900">
-              {isFilesLoading ? "Loading...": totalFilesCount}
+              {isFilesLoading ? "Loading..." : totalFilesCount}
             </div>
           </div>
         </div>
@@ -69,7 +88,7 @@ const CommitLog = () => {
                 },
               )}
             >
-              {contributors?.map((contributor) => (
+              {contributors?.map((contributor: Contributor) => (
                 <Tooltip key={contributor.login}>
                   <TooltipTrigger className="hover:cursor-pointer">
                     <Link
@@ -80,7 +99,7 @@ const CommitLog = () => {
                       <Image
                         src={contributor.avatarUrl}
                         alt={contributor.login}
-                        className="h-8 w-8 rounded-full !aspect-square"
+                        className="!aspect-square h-8 w-8 rounded-full"
                         width={100}
                         height={100}
                       />
@@ -95,18 +114,10 @@ const CommitLog = () => {
             </div>
           </div>
         </div>
-
-
-
-      
-
-  
-
-
-     </div>
+      </div>
 
       <ul className="mt-8 space-y-8">
-        {commits?.commits.map((commit: any, commitIdx: any) => {
+        {commits?.commits.map((commit: Commit, commitIdx: number) => {
           return (
             <li key={commit.id} className="relative flex gap-x-4">
               <div

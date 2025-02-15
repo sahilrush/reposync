@@ -12,18 +12,28 @@ services:
       - .env
     environment:
       - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@postgres-pgvector:5432/t3stack_db
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
     command: sh -c "npx prisma migrate deploy && npm run dev"
+    depends_on:
+      postgres-pgvector:
+        condition: service_healthy
 
-  db:
-    image: postgres:13
+  postgres-pgvector:
+    image: ankane/pgvector:latest
     ports:
-      - "5433:5432"
+      - "5432:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: t3stack_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=t3stack_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
